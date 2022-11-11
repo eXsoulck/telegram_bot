@@ -4,7 +4,7 @@ from pathlib import Path
 
 engine = pyttsx3.init()
 # adjust type of voices from local machine
-engine.setProperty('voice','HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_RU-RU_IRINA_11.0')
+engine.setProperty('voice','HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-GB_IRINA_11.0')
 
 
 def text_to_voice(text: str):

@@ -3,10 +3,15 @@ from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, Messa
 from voice import text_to_voice
 from pathlib import Path
 import os
-
+from get_weather import weather_info
 
 # get your token from environment variables
 TOKEN = os.getenv("TOKEN")
+
+# get api_key
+API = os.getenv("API_KEY")
+# base_url variable to store url
+base_url = "http://api.openweathermap.org/data/2.5/weather?"
 
 
 # define a function for greeting with person
@@ -15,16 +20,25 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 # define a function which will receive some message from users and send back mirror message but in voice
-async def receive_msg(update: Update,context: ContextTypes.DEFAULT_TYPE):
+async def receive_msg(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text_msg = update.message.text
-    # convert text into voice msg using text_to_voice function
-    voice_msg = text_to_voice(text_msg)
-    voice_path = Path("voice_data/")
-    voice_file = voice_path / voice_msg
-    file = open(f"{voice_file}", "rb")
-    await context.bot.send_voice(chat_id=update.effective_chat.id, voice=file)
+    # return temperature and humidity values
+    weather_data = weather_info(text_msg)
 
-
+    if weather_data:
+        # convert text into voice msg using text_to_voice function
+        voice_msg = text_to_voice(f"Current weather temperature in  {text_msg} is  {weather_data[0]} degrees Celsius "
+                                  f"and humidity about  {weather_data[1]} percent ")
+        voice_path = Path("voice_data/")
+        voice_file = voice_path / voice_msg
+        file = open(f"{voice_file}", "rb")
+        await context.bot.send_voice(chat_id=update.effective_chat.id, voice=file)
+    else:
+        voice_msg = text_to_voice("This is wrong city name or your location not found")
+        voice_path = Path("voice_data/")
+        voice_file = voice_path / voice_msg
+        file = open(f"{voice_file}", "rb")
+        await context.bot.send_voice(chat_id=update.effective_chat.id, voice=file)
 
 if __name__ == '__main__':
     application = ApplicationBuilder().token(TOKEN).build()
@@ -36,3 +50,5 @@ if __name__ == '__main__':
     application.add_handler(msg_handler)
 
     application.run_polling()
+
+
